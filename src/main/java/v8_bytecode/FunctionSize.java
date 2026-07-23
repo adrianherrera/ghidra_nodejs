@@ -1,8 +1,6 @@
 package v8_bytecode;
 
-import java.io.Serializable;
-
-public final class FunctionSize implements Serializable {
+public final class FunctionSize {
 	private final long address;
 	private final int size;
 	

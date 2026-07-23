@@ -8,9 +8,8 @@ import ghidra.program.model.listing.Program;
 import ghidra.program.model.pcode.PcodeOp;
 
 public class V8_InjectStaDataPropertyInLiteral extends V8_InjectPayload {
-	public V8_InjectStaDataPropertyInLiteral(String sourceName, SleighLanguage language, long uniqBase) {
-		super(sourceName, language, uniqBase);
-		// TODO Auto-generated constructor stub
+	public V8_InjectStaDataPropertyInLiteral(String sourceName, SleighLanguage language, long uniqBase, String opName) {
+		super(sourceName, language, uniqBase, opName);
 	}
 
 
@@ -62,9 +61,4 @@ public class V8_InjectStaDataPropertyInLiteral extends V8_InjectPayload {
 	}
 
 
-	@Override
-	public String getName() {
-		// TODO Auto-generated method stub
-		return "InjectStaDataPropertyInLiteral";
-	}
 }

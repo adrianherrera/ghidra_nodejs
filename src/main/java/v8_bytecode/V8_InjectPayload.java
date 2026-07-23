@@ -4,18 +4,26 @@ import ghidra.app.plugin.processors.sleigh.PcodeEmit;
 import ghidra.app.plugin.processors.sleigh.SleighLanguage;
 import ghidra.program.model.lang.InjectContext;
 import ghidra.program.model.lang.InjectPayload;
+import ghidra.program.model.lang.InjectPayloadCallother;
 
-public abstract class V8_InjectPayload implements InjectPayload {
+public abstract class V8_InjectPayload extends InjectPayloadCallother {
 	protected SleighLanguage language;
 	protected long uniqueBase;
 	private String sourceName;
+	private String opName;
 
-	public V8_InjectPayload(String sourceName, SleighLanguage language, long uniqBase) {
-//		super(sourceName);
+	public V8_InjectPayload(String sourceName, SleighLanguage language, long uniqBase, String opName) {
+		super(sourceName);
 		this.language = language;
 		this.sourceName = sourceName;
 		this.uniqueBase = uniqBase;
+		this.opName = opName;
 
+	}
+
+	@Override
+	public String getName() {
+		return opName;
 	}
 
 	@Override

@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jdom.JDOMException;
-
 import ghidra.app.plugin.processors.sleigh.SleighLanguage;
-import ghidra.pcodeCPort.slgh_compile.PcodeParser;
 import ghidra.program.model.lang.ConstantPool;
 import ghidra.program.model.lang.InjectPayload;
 import ghidra.program.model.lang.PcodeInjectLibrary;
@@ -15,20 +12,9 @@ import ghidra.program.model.listing.Program;
 
 public class V8_PcodeInjectLibrary extends PcodeInjectLibrary {
 	private Set<String> implementedOps;
-	private SleighLanguage language;
 
 	public V8_PcodeInjectLibrary(SleighLanguage l) {
 		super(l);
-		language = l;
-		String translateSpec = language.buildTranslatorTag(language.getAddressFactory(),
-				getUniqueBase(), language.getSymbolTable());
-		PcodeParser parser = null;
-		try {
-			parser = new PcodeParser(translateSpec);
-		}
-		catch (JDOMException e1) {
-			e1.printStackTrace();
-		}
 		implementedOps = new HashSet<>();
 		implementedOps.add("InvokeIntrinsicCallOther");
 		implementedOps.add("CallRuntimeCallOther");
@@ -39,23 +25,33 @@ public class V8_PcodeInjectLibrary extends PcodeInjectLibrary {
 		implementedOps.add("ThrowCallOther");
 		implementedOps.add("StaDataPropertyInLiteralCallOther");
 	}
+
+	public V8_PcodeInjectLibrary(V8_PcodeInjectLibrary op2) {
+		super(op2);
+		implementedOps = op2.implementedOps;	// Immutable
+	}
 	
 	@Override
 	public ConstantPool getConstantPool(Program program) throws IOException {
 		return new V8_ConstantPool(program);
+	}
+
+	@Override
+	public PcodeInjectLibrary clone() {
+		return new V8_PcodeInjectLibrary(this);
 	}
 	
 	@Override
 	/**
 	* This method is called by DecompileCallback.getPcodeInject.
 	*/
-	public InjectPayload getPayload(int type, String name, Program program, String context) {
+	public InjectPayload allocateInject(String sourceName, String name, int type) {
 		if (type == InjectPayload.CALLMECHANISM_TYPE) {
 			return null;
 		}
 
 		if (!implementedOps.contains(name)) {
-			return super.getPayload(type, name, program, context);
+			return super.allocateInject(sourceName, name, type);
 		}
 
 		V8_InjectPayload payload = null; 
@@ -63,28 +59,27 @@ public class V8_PcodeInjectLibrary extends PcodeInjectLibrary {
 		case ("InvokeIntrinsicCallOther"):
 		case ("CallVariadicCallOther"):
 		case ("CallRuntimeCallOther"):
-			payload = new V8_InjectCallVariadic("", language, 0);
+			payload = new V8_InjectCallVariadic("", language, 0, name);
 			break;
 		case ("ConstructCallOther"):
-			payload = new V8_InjectConstruct("", language, 0);
+			payload = new V8_InjectConstruct("", language, 0, name);
 			break;
-		case ("JSCallNCallOther"):	
-			payload = new V8_InjectJSCallN("", language, 0);
+		case ("JSCallNCallOther"):
+			payload = new V8_InjectJSCallN("", language, 0, name);
 			break;
 		case ("CallJSRuntimeCallOther"):
-			payload = new V8_InjectCallJSRuntime("", language, 0);
+			payload = new V8_InjectCallJSRuntime("", language, 0, name);
 			break;
-		case ("ThrowCallOther"):	
-			payload = new V8_InjectThrow("", language, 0);
+		case ("ThrowCallOther"):
+			payload = new V8_InjectThrow("", language, 0, name);
 			break;
 		case ("StaDataPropertyInLiteralCallOther"):
-			payload = new V8_InjectStaDataPropertyInLiteral("", language, 0);
+			payload = new V8_InjectStaDataPropertyInLiteral("", language, 0, name);
 			break;
 		default:
-			return super.getPayload(type, name, program, context);
+			return super.allocateInject(sourceName, name, type);
 		}
 
 		return payload;
 	}
-
 }

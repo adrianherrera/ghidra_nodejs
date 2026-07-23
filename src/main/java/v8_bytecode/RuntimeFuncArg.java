@@ -1,8 +1,6 @@
 package v8_bytecode;
 
-import java.io.Serializable;
-
-public final class RuntimeFuncArg implements Serializable {
+public final class RuntimeFuncArg {
 	private final String name;
 	private final String type;
 	

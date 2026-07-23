@@ -10,15 +10,8 @@ import ghidra.program.model.pcode.PcodeOp;
 
 public class V8_InjectCallJSRuntime extends V8_InjectPayload {
 
-	public V8_InjectCallJSRuntime(String sourceName, SleighLanguage language, long uniqBase) {
-		super(sourceName, language, uniqBase);
-		// TODO Auto-generated constructor stub
-	}
-
-	@Override
-	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+	public V8_InjectCallJSRuntime(String sourceName, SleighLanguage language, long uniqBase, String opName) {
+		super(sourceName, language, uniqBase, opName);
 	}
 
 	@Override

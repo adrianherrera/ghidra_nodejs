@@ -2,16 +2,15 @@ package v8_bytecode.storage;
 
 import static java.util.Map.entry;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 import v8_bytecode.RuntimeFuncArg;
 
-public final class RuntimesIntrinsicsStore implements Serializable {
+public final class RuntimesIntrinsicsStore {
 	private final List<List<RuntimeFuncArg>> allArgs;
 	private final List<String> names;
-	
+
 	private static final Map<Integer, Integer> intrinsicsToRuntimes = Map.ofEntries(
 	        entry(0, 741),
 	        entry(1, 740),
@@ -42,32 +41,32 @@ public final class RuntimesIntrinsicsStore implements Serializable {
 	        entry(26, 896),
 	        entry(27, 893)
 			);
-	
+
 	public RuntimesIntrinsicsStore(final List<String> names, final List<List<RuntimeFuncArg>> allArgs) {
 		this.allArgs = allArgs;
 		this.names = names;
 	}
-	
+
 	public List<RuntimeFuncArg> getArgs(int index) {
 		return allArgs.get(index);
 	}
-	
+
 	public List<String> getNames() {
 		return names;
 	}
-	
+
 	public int getNamesCount() {
 		return names.size();
 	}
-	
+
 	public String getRuntimeName(int index) {
 		return names.get(index);
 	}
-	
+
 	public int getIntrinsicsCount() {
 		return intrinsicsToRuntimes.size();
 	}
-	
+
 	public String getIntrinsicName(int index) {
 		return String.format("_%s", names.get(intrinsicsToRuntimes.get(index) - names.size()));
 	}

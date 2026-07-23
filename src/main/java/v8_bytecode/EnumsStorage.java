@@ -1,11 +1,9 @@
 package v8_bytecode;
 
-import java.io.Serializable;
-
 import v8_bytecode.storage.RootsStore;
 import v8_bytecode.storage.RuntimesIntrinsicsStore;
 
-public final class EnumsStorage implements Serializable {
+public final class EnumsStorage {
 
 	private final RootsStore rootsEnum;
 	private final RuntimesIntrinsicsStore runsIntrsStore;

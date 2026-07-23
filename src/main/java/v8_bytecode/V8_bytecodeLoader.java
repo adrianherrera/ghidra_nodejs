@@ -69,24 +69,23 @@ public class V8_bytecodeLoader extends AbstractLibrarySupportLoader {
 
 		return loadSpecs;
 	}
-
+	
 	@Override
-	protected void load(ByteProvider provider, LoadSpec loadSpec, List<Option> options, Program program,
-			TaskMonitor monitor, MessageLog log) throws CancelledException, IOException {
+	protected void load(Program program, ImporterSettings settings) {
 		
 		Options aOpts = program.getOptions(Program.ANALYSIS_PROPERTIES);
 		aOpts.setBoolean("Decompiler Switch Analysis", false);
 
-		BinaryReader reader = new BinaryReader(provider, true);
+		BinaryReader reader = new BinaryReader(settings.provider(), true);
 
 		try {
 			final String descr = program.getLanguage().getLanguageDescription().getVariant();
-			parser = new JscParser(reader, descr.equalsIgnoreCase("x32"), program, monitor, log);
+			parser = new JscParser(reader, descr.equalsIgnoreCase("x32"), program, settings.monitor(), settings.log());
 			parser.parse();
 			parser.postAllocate();
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.appendException(e);
+			settings.log().appendException(e);
 		}
 	}
 }

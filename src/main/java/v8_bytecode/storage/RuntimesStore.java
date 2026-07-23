@@ -2,13 +2,12 @@ package v8_bytecode.storage;
 
 import static java.util.Map.entry;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 import v8_bytecode.RuntimeFuncArg;
 
-public final class RuntimesStore implements Serializable {
+public final class RuntimesStore {
 	private final List<List<RuntimeFuncArg>> allArgs;
 	private final List<String> names;
 	

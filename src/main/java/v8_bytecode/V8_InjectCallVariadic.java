@@ -11,8 +11,8 @@ import ghidra.program.model.pcode.PcodeOp;
 
 public class V8_InjectCallVariadic extends V8_InjectPayload {
 
-public V8_InjectCallVariadic(String sourceName, SleighLanguage language, long uniqBase) {
-		super(sourceName, language, uniqBase);
+public V8_InjectCallVariadic(String sourceName, SleighLanguage language, long uniqBase, String opName) {
+		super(sourceName, language, uniqBase, opName);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -107,10 +107,5 @@ public V8_InjectCallVariadic(String sourceName, SleighLanguage language, long un
 		return pCode.getPcodeOps();
 	}
 
-	@Override
-	public String getName() {
-		// TODO Auto-generated method stub
-		return "InjectCallVariadic";
-	}
 
 }

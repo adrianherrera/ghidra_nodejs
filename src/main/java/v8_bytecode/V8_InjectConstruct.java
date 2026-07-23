@@ -12,13 +12,8 @@ import ghidra.program.model.pcode.PcodeOp;
 
 public class V8_InjectConstruct extends V8_InjectPayload {
 
-	public V8_InjectConstruct(String sourceName, SleighLanguage language, long uniqBase) {
-		super(sourceName, language, uniqBase);
-	}
-
-	@Override
-	public String getName() {
-		return "ConstructCallOther";
+	public V8_InjectConstruct(String sourceName, SleighLanguage language, long uniqBase, String opName) {
+		super(sourceName, language, uniqBase, opName);
 	}
 
 	@Override

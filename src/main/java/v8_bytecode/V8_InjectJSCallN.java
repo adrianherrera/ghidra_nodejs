@@ -13,9 +13,8 @@ import ghidra.program.model.pcode.PcodeOp;
 
 public class V8_InjectJSCallN extends V8_InjectPayload {
 
-public V8_InjectJSCallN(String sourceName, SleighLanguage language, long uniqBase) {
-		super(sourceName, language, uniqBase);
-		// TODO Auto-generated constructor stub
+public V8_InjectJSCallN(String sourceName, SleighLanguage language, long uniqBase, String opName) {
+		super(sourceName, language, uniqBase, opName);
 	}
 
 
@@ -84,9 +83,4 @@ public PcodeOp[] getPcode(Program program, InjectContext context) {
 }
 
 
-@Override
-public String getName() {
-	// TODO Auto-generated method stub
-	return "InjectJSCallN";
-}
 }

@@ -1,10 +1,8 @@
 package v8_bytecode;
 
-import java.io.Serializable;
 import java.util.Objects;
 
-
-public final class HandlerTableEntry implements Serializable {
+public final class HandlerTableEntry {
 	private final int start;
 	private final int end;
 	private final int pred;

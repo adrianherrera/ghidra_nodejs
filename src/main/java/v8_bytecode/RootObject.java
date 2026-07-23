@@ -1,8 +1,6 @@
 package v8_bytecode;
 
-import java.io.Serializable;
-
-public final class RootObject implements Serializable {
+public final class RootObject {
 	private final String name;
 	private final String type;
 	

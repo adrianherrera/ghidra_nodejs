@@ -1,6 +1,8 @@
 package v8_bytecode.storage;
 
-import java.io.Serializable;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,43 +18,52 @@ import v8_bytecode.structs.ScopeInfoStruct;
 import v8_bytecode.structs.SharedFunctionInfoStruct;
 import v8_bytecode.structs.TupleStruct;
 
-public final class SharedFunctionStore implements Serializable {
+public final class SharedFunctionStore {
 	private final String name;
 	private final long offset;
 	private final int size;
 	private final ScopeInfoStore outerScope;
 	private final ConstantPoolStore cp;
-	
+
 	private final Map<String, ScopeInfoStore> scopes;
-	
+
 	private SharedFunctionStore(final String name, long offset, int size, final ScopeInfoStore scopeInfo, final ScopeInfoStore outerScope, final ConstantPoolStore cp, final Program program) {
 		this.name = name;
 		this.offset = offset;
 		this.size = size;
-		
+
 		scopes = new HashMap<>();
 		scopes.put("_context", scopeInfo);
-		
+
 		this.outerScope = outerScope;
 		this.cp = cp;
 	}
-	
+
+	private SharedFunctionStore(String name, long offset, int size, ScopeInfoStore outerScope, ConstantPoolStore cp, Map<String, ScopeInfoStore> scopes) {
+		this.name = name;
+		this.offset = offset;
+		this.size = size;
+		this.outerScope = outerScope;
+		this.cp = cp;
+		this.scopes = scopes;
+	}
+
 	public static SharedFunctionStore fromStruct(final SharedFunctionInfoStruct struct, final Program program) {
 		final ScopeInfoStruct scopeInfo1s = struct.getScopeInfo();
 		final Object scopeInfo2s = struct.getOuterScope();
-		
+
 		final ScopeInfoStore siStore = ScopeInfoStore.fromStruct(scopeInfo1s);
 		final ScopeInfoStore osiStore = ScopeInfoStore.fromStruct(scopeInfo2s);
-		
+
 		final ConstantPoolStruct cpStruct = struct.getConstantPool();
 		final ConstantPoolStore cp;
 		if (cpStruct != null) {
 			final List<Pair<Object, Address>> cpItems = cpStruct.getItems();
-			
+
 			final List<ConstantPoolItemStore> items = new ArrayList<>();
 			for (final Pair<Object, Address> item : cpItems) {
 				Object obj = null;
-				
+
 				if (item.first instanceof SharedFunctionInfoStruct) {
 					final SharedFunctionInfoStruct sfObj = (SharedFunctionInfoStruct)item.first;
 					obj = fromStruct(sfObj, program);
@@ -71,16 +82,16 @@ public final class SharedFunctionStore implements Serializable {
 				} else {
 					//System.out.println(item.first);
 				}
-				
+
 				final ConstantPoolItemStore cpItem = new ConstantPoolItemStore(obj, item.second.getOffset());
 				items.add(cpItem);
 			}
-			
+
 			cp = new ConstantPoolStore(items);
 		} else {
 			cp = null;
 		}
-		
+
 		return new SharedFunctionStore((String)struct.getName(), struct.getAddress().getOffset(), struct.getSize(), siStore, osiStore, cp, program);
 	}
 
@@ -91,19 +102,19 @@ public final class SharedFunctionStore implements Serializable {
 	public long getAddress() {
 		return offset;
 	}
-	
+
 	public boolean contains(long addr) {
-		return (addr >= offset) && (addr < (offset + size)); 
+		return (addr >= offset) && (addr < (offset + size));
 	}
 
 	public ScopeInfoStore getScopeInfo(final String reg) {
 		return scopes.get(reg);
 	}
-	
+
 	public ScopeInfoStore getOuterScopeInfo() {
 		return outerScope;
 	}
-	
+
 	public void pushScopeInfo(final String reg, final ScopeInfoStore scope) {
 		scopes.put(reg, scope);
 	}
@@ -114,5 +125,47 @@ public final class SharedFunctionStore implements Serializable {
 
 	public ConstantPoolStore getConstantPool() {
 		return cp;
+	}
+
+	void writeTo(DataOutputStream out) throws IOException {
+		out.writeUTF(name != null ? name : "");
+		out.writeLong(offset);
+		out.writeInt(size);
+
+		ScopeInfoStore.writeNullable(out, outerScope);
+
+		out.writeBoolean(cp != null);
+		if (cp != null) {
+			cp.writeTo(out);
+		}
+
+		out.writeInt(scopes.size());
+		for (final Map.Entry<String, ScopeInfoStore> entry : scopes.entrySet()) {
+			out.writeUTF(entry.getKey());
+			ScopeInfoStore.writeNullable(out, entry.getValue());
+		}
+	}
+
+	static SharedFunctionStore readFrom(DataInputStream in) throws IOException {
+		String name = in.readUTF();
+		long offset = in.readLong();
+		int size = in.readInt();
+
+		ScopeInfoStore outerScope = ScopeInfoStore.readNullable(in);
+
+		ConstantPoolStore cp = null;
+		if (in.readBoolean()) {
+			cp = ConstantPoolStore.readFrom(in);
+		}
+
+		int scopeCount = in.readInt();
+		Map<String, ScopeInfoStore> scopes = new HashMap<>(scopeCount);
+		for (int i = 0; i < scopeCount; i++) {
+			String key = in.readUTF();
+			ScopeInfoStore value = ScopeInfoStore.readNullable(in);
+			scopes.put(key, value);
+		}
+
+		return new SharedFunctionStore(name, offset, size, outerScope, cp, scopes);
 	}
 }
